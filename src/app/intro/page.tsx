@@ -1,13 +1,19 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useAnimationControls, type Variants } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Orbitron, Rajdhani } from 'next/font/google';
+
+// --- FONTS CONFIGURATION ---
+const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
+const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['500', '700'] });
 
 /**
  * @info
  * A component to render a single, simple stroke for the 'M'.
- * It has one color and an animation for "drawing" (pathLength).
- * Now accepts a 'delay' prop for staggered, overlapping animation.
+ * (PRESERVED FROM YOUR ORIGINAL CODE)
  */
 function AnimatedStroke({ path, color, controls, delay }: { path: string; color: string; controls: any; delay: number }) {
   const strokeVariants: Variants = {
@@ -16,9 +22,9 @@ function AnimatedStroke({ path, color, controls, delay }: { path: string; color:
       pathLength: 1,
       opacity: 1,
       transition: { 
-        duration: 0.6, // Each stroke still takes 0.6s to draw
+        duration: 0.6, 
         ease: 'easeInOut' as const, 
-        delay: delay // This is the new part for overlapping
+        delay: delay 
       }
     },
   };
@@ -28,8 +34,8 @@ function AnimatedStroke({ path, color, controls, delay }: { path: string; color:
       d={path}
       fill="transparent"
       stroke={color}
-      strokeWidth="12" // Kept the thinner stroke
-      strokeLinecap="butt" // For rectangle corners
+      strokeWidth="12"
+      strokeLinecap="butt"
       variants={strokeVariants}
       animate={controls}
       initial="hidden"
@@ -39,44 +45,38 @@ function AnimatedStroke({ path, color, controls, delay }: { path: string; color:
 
 /**
  * @info
- * A full-screen intro animation featuring a "writing" 'M' logo
- * with 4 strokes, and text, which then fades out with a zoom-in effect.
+ * A full-screen intro animation featuring a "writing" 'M' logo.
+ * (PRESERVED FROM YOUR ORIGINAL CODE)
  */
 function IntroAnimation({ onComplete }: { onComplete: () => void }) {
   const [showText, setShowText] = useState(false);
-  const [showMLSALogo, setShowMLSALogo] = useState(false); // New state for MLSA logo
+  const [showMLSALogo, setShowMLSALogo] = useState(false);
 
-  // Use the exact hex color you requested
   const MColor = "#060757";
 
-  // "Closer" paths
-  const path1 = "M 30 80 L 30 20"; // Length 60
-  const path2 = "M 30 20 L 50 80"; // Length ~63
-  const path3 = "M 50 80 L 70 20"; // Length ~63
-  const path4 = "M 70 20 L 70 80"; // Length 60
+  const path1 = "M 30 80 L 30 20";
+  const path2 = "M 30 20 L 50 80";
+  const path3 = "M 50 80 L 70 20";
+  const path4 = "M 70 20 L 70 80";
 
-  // Animation controls for each of the 4 paths
   const controls1 = useAnimationControls();
   const controls2 = useAnimationControls();
   const controls3 = useAnimationControls();
   const controls4 = useAnimationControls();
 
   useEffect(() => {
-    // Start all M animations
     controls1.start("visible");
     controls2.start("visible");
     controls3.start("visible");
     controls4.start("visible");
 
-    // Show the text after the 'M' has finished drawing
     const textTimer = setTimeout(() => {
       setShowText(true);
-    }, 2300); // 1.7s (last delay) + 0.6s (draw duration) = 2.3s
+    }, 2300);
 
-    // Show the MLSA logo after the main screen fade-in is complete
     const mlsaLogoTimer = setTimeout(() => {
       setShowMLSALogo(true);
-    }, 500); // After the initial 0.5s screen fade-in
+    }, 500);
 
     return () => {
       clearTimeout(textTimer);
@@ -87,21 +87,18 @@ function IntroAnimation({ onComplete }: { onComplete: () => void }) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
-      // Added initial and animate for a fade-in effect for the whole screen
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }} // Quick fade-in for the whole screen
-      // Exit animation: fade out and ZOOM IN
+      transition={{ duration: 0.5 }}
       exit={{ opacity: 0, scale: 1.5 }}
       onAnimationComplete={onComplete}
     >
-      {/* MLSA Logo - positioned top-left */}
       <AnimatePresence>
         {showMLSALogo && (
           <motion.img
-            src="https://www.mlsakiit.com/_next/image?url=/mlsaLogo2.png&w=828&q=75"
+            src="/mlsa.jpg"
             alt="MLSA MIET Logo"
-            className="absolute top-4 left-4 h-12 w-auto md:h-16 z-10" // Adjust size as needed
+            className="absolute top-4 left-4 h-12 w-auto md:h-16 z-10"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -110,13 +107,8 @@ function IntroAnimation({ onComplete }: { onComplete: () => void }) {
         )}
       </AnimatePresence>
 
-      {/* Container for the SVG to set a max size */}
       <div className="w-full max-w-xs md:max-w-md">
-        <motion.svg
-          viewBox="0 0 100 100" // Adjusted viewBox for new paths
-          className="w-full h-auto overflow-visible"
-        >
-          {/* Render the 4 animated strokes with staggered delays */}
+        <motion.svg viewBox="0 0 100 100" className="w-full h-auto overflow-visible">
           <AnimatedStroke path={path1} color={MColor} controls={controls1} delay={0.5} />
           <AnimatedStroke path={path2} color={MColor} controls={controls2} delay={0.9} /> 
           <AnimatedStroke path={path3} color={MColor} controls={controls3} delay={1.3} />
@@ -124,13 +116,11 @@ function IntroAnimation({ onComplete }: { onComplete: () => void }) {
         </motion.svg>
       </div>
 
-      {/* The "Creepy" text animation - will only appear when showText is true */}
       <AnimatePresence>
         {showText && (
           <motion.h1
-            // Using inline style to avoid config file
             className="mt-4 text-2xl md:text-3xl text-white"
-            style={{ fontFamily: 'Eater', fontWeight: '200', fontSize: '30px' }} // Inline style for font
+            style={{ fontFamily: 'Eater', fontWeight: '200', fontSize: '30px' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -143,367 +133,199 @@ function IntroAnimation({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-// --- NEW TYPING ANIMATION HOOK ---
-function useTypingEffect(fullText: string, speed: number = 50, startDelay: number = 0) {
-  const [text, setText] = useState('');
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    // Start after the initial delay
-    const startTimeout = setTimeout(() => {
-      let i = 0;
-      const interval = setInterval(() => {
-        setText(fullText.substring(0, i + 1));
-        i++;
-        if (i > fullText.length) {
-          clearInterval(interval);
-          setIsComplete(true);
-        }
-      }, speed);
-      return () => clearInterval(interval);
-    }, startDelay);
-    
-    return () => clearTimeout(startTimeout);
-  }, [fullText, speed, startDelay]);
-
-  return { text, isComplete };
-}
-
-
-// --- NEW TYPED LINE COMPONENT ---
-function TypedLine({ 
-  text, 
-  prefix = "", 
-  color = "text-green-400", 
-  startDelay = 0, 
-  onComplete = () => {} 
-}: { 
-  text: string; 
-  prefix?: string; 
-  color?: string; 
-  startDelay?: number; 
-  onComplete?: () => void;
-}) {
-  const { text: typedText, isComplete } = useTypingEffect(text, 50, startDelay);
-
-  // We still use onComplete to chain animations, but it's triggered by isComplete
-  useEffect(() => {
-    if (isComplete) {
-      onComplete();
-    }
-  }, [isComplete, onComplete]);
-
-  return (
-    <p>
-      {/* FIX: Escaped the '>' character */}
-      <span className="text-gray-400">{prefix}</span>
-      <span className={color}>{typedText}</span>
-    </p>
-  );
-}
-
-// --- NEW ANIMATED LOADER COMPONENT ---
-function AnimatedLoader({ startDelay = 0, onComplete = () => {} }: { startDelay?: number; onComplete?: () => void; }) {
-  const [progress, setProgress] = useState(0);
-  const max = 10;
-
-  useEffect(() => {
-    const startTimeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        setProgress(p => {
-          if (p >= max) {
-            clearInterval(interval);
-            onComplete(); // Fire onComplete when loader is full
-            return max;
-          }
-          return p + 1;
-        });
-      }, 100);
-      return () => clearInterval(interval);
-    }, startDelay);
-    return () => clearTimeout(startTimeout);
-  }, [startDelay, onComplete]);
-
-  const loader = `[${'█'.repeat(progress)}${'.'.repeat(max - progress)}]`;
-  return (
-    <p>
-      {/* FIX: Escaped the '>' character */}
-      <span className="text-gray-400">{'> '}</span>
-      <span className="text-green-400">Attempting to reinitialize MIET NODE {loader}</span>
-    </p>
-  );
-}
-
-
-// --- NEW STRANGER THINGS LANDING PAGE COMPONENT ---
-
-function StrangerLandingPage() {
-  const [guess, setGuess] = useState("");
-  const [message, setMessage] = useState("");
-  const [step, setStep] = useState(0); // State to manage typing waterfall
-  const [startTerminal, setStartTerminal] = useState(false); // NEW: State to trigger animation
-
-  const targetWord = "RUN";
-  const hashedWord = "UlVO"; // "RUN" in Base64
-
-  const checkAnswer = () => {
-    if (guess.toUpperCase() === targetWord) {
-      setMessage("SUCCESS: YOU CRACKED THE CODE. ACCESS GRANTED.");
-    } else {
-      setMessage("ERROR: INCORRECT. ACCESS DENIED.");
-    }
-  };
-
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    checkAnswer();
-  };
-
-  // NEW: Define the style for the new background image
-  const sectionsBackgroundStyle = {
-    backgroundImage: 'url(/bg.png)', // <-- REPLACE THIS
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundAttachment: 'fixed'
-  };
-
-  // --- FIX: Wrap all onComplete handlers in useCallback ---
-  const handleStep0 = useCallback(() => setTimeout(() => setStep(1), 500), []);
-  const handleStep1 = useCallback(() => setTimeout(() => setStep(2), 500), []);
-  const handleStep2 = useCallback(() => setTimeout(() => setStep(3), 300), []);
-  const handleStep3 = useCallback(() => setTimeout(() => setStep(4), 500), []);
-  const handleStep4 = useCallback(() => setTimeout(() => setStep(5), 100), []);
-  const handleStep5 = useCallback(() => setTimeout(() => setStep(6), 500), []);
-
-
+/**
+ * @info
+ * NEW COMPONENT: The Gaming Library Main Page
+ * Contains: Header, Hero Section, and Game Grid
+ */
+function GamingZoneHome() {
   return (
     <motion.div 
-      className="text-white"
+      className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.5 }} // Fade in after intro fades out
-      // REMOVED: Shared background image from here
+      transition={{ duration: 1, delay: 0.5 }}
     >
-      {/* SECTION 1: HERO (Full screen, original background image)
-      */}
-       <section 
-        className="relative flex flex-col min-h-[75vh] sm:min-h-[85vh] md:min-h-screen text-white p-4 overflow-hidden"
-      >
-        {/* Background image constrained by responsive width container */}
-        <div className="absolute inset-0 z-0 flex justify-center">
-          <div className="relative h-full w-[95%] sm:w-[95%] md:w-full">
-            <Image
-              src="/samarambh-backg.jpg"
-              alt="Background"
-              sizes="(max-width: 768px) 90vw, (max-width: 1280px) 95vw, 100vw"
-              priority
-              unoptimized
+      {/* --- 1. HEADER --- */}
+      <header className="flex items-center justify-between px-6 py-4 md:px-10 md:py-6 border-b border-white/10 backdrop-blur-md fixed top-0 w-full z-40 bg-black/60">
+        {/* Left: MLSA Logo */}
+        <div className="flex items-center gap-4">
+          <div className="relative w-10 h-10 md:w-14 md:h-14">
+            <Image 
+              src="/mlsa.jpg" 
+              alt="MLSA Logo" 
               fill
-              className="object-cover object-[center_30%] scale-110 sm:scale-110 md:scale-105 lg:scale-100 transition-transform duration-500"
+              className="object-contain"
             />
           </div>
+          <span className={`${orbitron.className} hidden md:block text-xl font-bold tracking-wider text-blue-500`}>
+            MLSA <span className="text-white">GAMING</span>
+          </span>
         </div>
-        {/* Semi-transparent overlay for readability */}
-        {/* <div className="absolute inset-0 bg-black/40 z-10"></div> */}
-        
-        {/* Header with MLSA Logo */}
-        <header className="relative z-20 w-full p-4">
-          <img
-            src="https://www.mlsakiit.com/_next/image?url=/mlsaLogo2.png&w=828&q=75"
-            alt="MLSA MIET Logo"
-            className="h-12 w-auto md:h-16"
-          />
-        </header>
-        
-        {/* Hero Content (Flicker Text) - REMOVED FROM HERE */}
-        
-        {/* Optional: "Scroll Down" arrow to hint at more content */}
-        <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-20">
-          <a href="#title-section" className="animate-bounce">
-            <svg className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </a>
-        </div>
-      </section>
 
-      {/* NEW SECTION 2: TITLE (Moved from Hero)
-      */}
-      <section 
-        id="title-section" // Link target for scroll arrow
-        className="relative z-10 flex flex-col items-center justify-center text-center bg-black/75 py-20 md:py-32" // Added transparency
-        style={sectionsBackgroundStyle} // NEW: Added new background
-      >
-        <h1 
-          className="text-4xl md:text-6xl text-red-600 flicker-text"
-          style={{ fontFamily: 'Bungee, cursive' }}
-        >
-          MLSA MIET
-        </h1>
-        <h2 
-          className="text-3xl md:text-5xl text-white mt-2"
-          style={{ fontFamily: 'Bungee, cursive' }}
-        >
-          PRESENTS
-        </h2>
-      </section>
+        {/* Right: Login Button */}
+        <button className={`
+          relative px-6 py-2 group overflow-hidden rounded-lg
+          bg-transparent border border-blue-500/40 hover:border-blue-400 
+          transition-all duration-300 ease-out
+          ${orbitron.className}
+        `}>
+          <span className="absolute inset-0 w-full h-full bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+          <span className="relative text-blue-300 group-hover:text-white font-bold tracking-widest uppercase text-xs md:text-sm">
+            Login_System
+          </span>
+        </button>
+      </header>
 
-      {/* --- SECTION 3: HASHING GAME (RE-STRUCTURED) ---
-      */}
-      <section 
-        id="game-section" // ID for the scroll-down link
-        className="relative z-10 flex flex-col items-center justify-center bg-black/75 p-8 md:p-12 pb-20 md:pb-32" // Added transparency
-        style={sectionsBackgroundStyle} // NEW: Added new background
-      >
-        {/* Kept the original red-bordered container */}
-        <div className="p-6 md:p-8 bg-black border-2 border-red-900 rounded-lg shadow-2xl shadow-red-900/50 w-full max-w-lg">
-          {/* Kept the original title */}
-          <h3 
-            className="text-2xl md:text-3xl text-red-500 flicker-text text-center"
-            style={{ fontFamily: 'Bungee, cursive' }}
-          >
-            THE HASHING CHALLENGE
-          </h3>
-          {/* Kept the original description */}
-          <p className="mt-4 text-gray-300 text-center" style={{ fontFamily: 'Inter, sans-serif' }}>
-            The signal is corrupted. Decrypt the message to proceed.
-          </p>
-
-          {/* NEW: Terminal window inserted inside the card */}
-          {/* NEW: Added onViewportEnter to trigger animation */}
+      {/* --- 2. HERO SECTION --- */}
+      <section className="pt-32 pb-10 px-6 md:px-16 max-w-7xl mx-auto min-h-[60vh] flex flex-col md:flex-row items-center gap-12">
+        {/* Hero Text */}
+        <div className="flex-1 space-y-6 text-center md:text-left">
           <motion.div 
-            className="p-4 bg-black h-96 overflow-y-auto mt-6 border border-gray-700 rounded"
-            style={{ fontFamily: 'Roboto Mono, monospace' }}
-            onViewportEnter={() => setStartTerminal(true)}
-            viewport={{ once: true, amount: 0.5 }} // Trigger once when 50% is visible
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="inline-block px-3 py-1 rounded-full border border-blue-500/30 bg-blue-900/10 text-blue-400 text-xs tracking-[0.2em] mb-2"
           >
-            {/* The typing animation waterfall with delays */}
-            {/* NEW: Only render if 'startTerminal' is true */}
-            {startTerminal && <TypedLine 
-              text="welcome to MIET LAB" 
-              prefix={"> "} 
-              onComplete={handleStep0} // Use memoized handler
-            />}
-            
-            {startTerminal && step >= 1 && <TypedLine 
-              text="CONNECTION LOST..." 
-              prefix={"> "} 
-              startDelay={0} 
-              onComplete={handleStep1} // Use memoized handler
-            />}
-            
-            {startTerminal && step >= 2 && <AnimatedLoader 
-              startDelay={0} 
-              onComplete={handleStep2} // Use memoized handler
-            />}
-            
-            {startTerminal && step >= 3 && <TypedLine 
-              text="WARNING: SYSTEM INTEGRITY" 
-              prefix={"> "} 
-              startDelay={0} 
-              onComplete={handleStep3} // Use memoized handler
-            />}
-            
-            {startTerminal && step >= 4 && <TypedLine 
-              text="Neural firewall breached." 
-              prefix="[OK] " 
-              color="text-green-400" 
-              startDelay={0} 
-              onComplete={handleStep4} // Use memoized handler
-            />}
-            
-            {startTerminal && step >= 5 && <TypedLine 
-              text="Rift stabilization offline" 
-              prefix="[ERR] " 
-              color="text-red-500" 
-              startDelay={0} 
-              onComplete={handleStep5} // Use memoized handler
-            />}
-
-            {/* Hashing Challenge Input - appears at the end */}
-            {startTerminal && step >= 6 && (
-              <div className="mt-2">
-                {/* The Hashed Word */}
-                <div className="my-4 p-2 bg-gray-900 border border-gray-700 rounded-md">
-                  <p className="text-sm text-gray-400">ENCRYPTED MESSAGE:</p>
-                  <p className="text-xl text-green-400">{hashedWord}</p>
-                </div>
-                
-                {/* The Input Form */}
-                <form onSubmit={handleFormSubmit}>
-                  <label htmlFor="accessCode" className="text-gray-400">
-                    Enter the Acess Code
-                  </label>
-                  <input 
-                    id="accessCode"
-                    type="text"
-                    value={guess}
-                    onChange={(e) => {
-                      setGuess(e.target.value.toUpperCase());
-                      setMessage(""); // Clear message on new input
-                    }}
-                    autoFocus
-                    className="ml-2 bg-transparent border-none text-white text-sm uppercase focus:outline-none w-1/2"
-                    style={{ fontFamily: 'Roboto Mono, monospace' }}
-                  />
-                  {/* Hidden button to allow "Enter" key submission */}
-                  <button type="submit" className="hidden"></button>
-                </form>
-
-                {/* Success/Error Message */}
-                {message && (
-                  <p 
-                    className={`mt-2 ${message.startsWith("SUCCESS") ? 'text-green-400' : 'text-red-500'}`}
-                  >
-                    {message}
-                  </p>
-                )}
-              </div>
-            )}
+            INITIATE SEQUENCE
           </motion.div>
+          
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.7, duration: 0.8 }}
+            className={`${orbitron.className} text-4xl md:text-6xl lg:text-7xl font-black leading-tight`}
+          >
+            MLSA PRESENTS <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 animate-pulse">
+              GAMING ZONE
+            </span>
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.0, duration: 0.8 }}
+            className={`${rajdhani.className} text-gray-400 text-lg md:text-xl max-w-lg mx-auto md:mx-0 leading-relaxed`}
+          >
+            Welcome to the digital frontier. Prove your worth in our collection of algorithmic challenges and cryptographic puzzles.
+          </motion.p>
+        </div>
+
+        {/* Hero Image */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2.2, duration: 0.8 }}
+          className="flex-1 relative w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(37,99,235,0.15)] group"
+        >
+           {/* Gradient Overlay */}
+           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10"></div>
+           <Image 
+             src="/bgg.png" 
+             alt="Gaming Zone Hero" 
+             fill
+             className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out"
+           />
+        </motion.div>
+      </section>
+
+      {/* --- 3. GAME LIBRARY GRID --- */}
+      <section className="px-6 md:px-16 pb-24 max-w-7xl mx-auto">
+        <div className="flex items-center gap-4 mb-10">
+          <div className="h-px bg-gray-800 flex-1"></div>
+          <h2 className={`${orbitron.className} text-2xl text-gray-300`}>AVAILABLE CHALLENGES</h2>
+          <div className="h-px bg-gray-800 flex-1"></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          {/* --- GAME CARD: HASHING GAME --- */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]"
+          >
+            {/* Card Image Area */}
+            <div className="relative h-56 w-full bg-gray-900 overflow-hidden">
+               <Image 
+                 src="/hashing-game-thumb.jpg" 
+                 alt="Hashing Game Thumbnail"
+                 fill
+                 className="object-cover group-hover:scale-110 transition-transform duration-500 z-0 opacity-60 group-hover:opacity-80"
+               />
+               <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20 z-0"></div>
+               <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <span className={`${orbitron.className} text-5xl font-black text-white/10 group-hover:text-white/20 transition-colors duration-500`}>
+                    #HASH
+                  </span>
+               </div>
+            </div>
+
+            {/* Card Content */}
+            <div className="p-6 space-y-4 relative z-20 bg-[#0a0a0a]">
+              <div className="flex justify-between items-start">
+                <h3 className={`${orbitron.className} text-xl font-bold text-white group-hover:text-blue-400 transition-colors`}>
+                  Hashing Game
+                </h3>
+                <span className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30 font-mono">
+                  ONLINE
+                </span>
+              </div>
+              
+              <p className={`${rajdhani.className} text-gray-400 font-medium text-sm line-clamp-2`}>
+                The signal is corrupted. Decrypt the messages and match the hash values to breach the firewall.
+              </p>
+              
+              {/* PLAY BUTTON - Redirects to /hashing-game */}
+              <Link href="/hashing-game" className="block w-full pt-2">
+                <button className={`
+                  w-full py-3 rounded bg-blue-600 hover:bg-blue-500 
+                  text-white font-bold tracking-widest uppercase
+                  transform group-hover:-translate-y-1 transition-all duration-300 
+                  shadow-lg shadow-blue-900/50
+                  ${orbitron.className}
+                `}>
+                  Play Now
+                </button>
+              </Link>
+            </div>
+          </motion.div>
+          
         </div>
       </section>
     </motion.div>
   );
 }
 
-
 /**
  * @info
- * This is the main App component.
- * It controls whether the intro or the main site content is visible.
+ * MAIN APP COMPONENT
+ * Orchestrates the Intro -> Main Page transition
  */
-export default function App() {
+export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
 
-  // Hide the intro after a delay
+  // Logic: Wait for Intro to finish (visual estimate) then switch state
   useEffect(() => {
-    // Total intro time:
-    // 0.5s (fade-in)
-    // + 1.7s (last delay) + 0.6s (draw time) = 2.3s
-    // + 0.7s (text fade-in)
-    // + 1.0s (hold time)
-    // = 4.5s
+    // 4.5s matches the duration of your IntroAnimation internal logic
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 4500); // 4.5 seconds total before triggering the 1s exit animation
+    }, 4500);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-black">
-      <AnimatePresence>
-        {showIntro && <IntroAnimation onComplete={() => {}} />}
+    <div className="relative w-full min-h-screen bg-black text-white font-sans">
+      <AnimatePresence mode='wait'>
+        {showIntro ? (
+          <IntroAnimation key="intro" onComplete={() => {}} />
+        ) : (
+          <GamingZoneHome key="home" />
+        )}
       </AnimatePresence>
-
-      {/* This is your main landing page content. */}
-      {/* --- MODIFIED SECTION --- */}
-      {/* This now renders your Stranger Things landing page! */}
-      {!showIntro && (
-        <StrangerLandingPage />
-      )}
     </div>
   );
 }
-
