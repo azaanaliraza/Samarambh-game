@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useAnimationControls, type Variants } from 'fr
 import Image from 'next/image';
 import Link from 'next/link';
 import { Orbitron, Rajdhani } from 'next/font/google';
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 // --- FONTS CONFIGURATION ---
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
@@ -120,12 +121,12 @@ function IntroAnimation({ onComplete }: { onComplete: () => void }) {
         {showText && (
           <motion.h1
             className="mt-4 text-2xl md:text-3xl text-white"
-            style={{ fontFamily: 'Eater', fontWeight: '200', fontSize: '30px' }}
+            style={{ fontFamily: "orbitron", fontWeight: '200', fontSize: '30px' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            MLSA Originals
+            MLSA MIET Originals
           </motion.h1>
         )}
       </AnimatePresence>
@@ -159,22 +160,39 @@ function GamingZoneHome() {
             />
           </div>
           <span className={`${orbitron.className} hidden md:block text-xl font-bold tracking-wider text-blue-500`}>
-            MLSA <span className="text-white">GAMING</span>
+            MLSA <span className="text-white">MIET GAMING</span>
           </span>
         </div>
 
-        {/* Right: Login Button */}
-        <button className={`
-          relative px-6 py-2 group overflow-hidden rounded-lg
-          bg-transparent border border-blue-500/40 hover:border-blue-400 
-          transition-all duration-300 ease-out
-          ${orbitron.className}
-        `}>
-          <span className="absolute inset-0 w-full h-full bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-          <span className="relative text-blue-300 group-hover:text-white font-bold tracking-widest uppercase text-xs md:text-sm">
-            Login_System
-          </span>
-        </button>
+        {/* Right: Login System */}
+        <div>
+          {/* IF LOGGED IN: Show User Profile */}
+          <SignedIn>
+            <div className="flex items-center gap-3 px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-full">
+              <UserButton afterSignOutUrl="/"/>
+              <span className={`${orbitron.className} text-blue-400 text-xs tracking-widest hidden md:block`}>
+                OPERATOR
+              </span>
+            </div>
+          </SignedIn>
+
+          {/* IF LOGGED OUT: Show Login Button */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className={`
+                relative px-6 py-2 group overflow-hidden rounded-lg
+                bg-transparent border border-blue-500/40 hover:border-blue-400 
+                transition-all duration-300 ease-out
+                ${orbitron.className}
+              `}>
+                <span className="absolute inset-0 w-full h-full bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="relative text-blue-300 group-hover:text-white font-bold tracking-widest uppercase text-xs md:text-sm">
+                  Login_System
+                </span>
+              </button>
+            </SignInButton>
+          </SignedOut>
+        </div>
       </header>
 
       {/* --- 2. HERO SECTION --- */}
