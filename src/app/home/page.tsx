@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useAnimationControls, type Variants } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Orbitron, Rajdhani } from 'next/font/google';
@@ -11,35 +11,162 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['500', '700'] });
 
-export default function GamingZoneHome() {
+/**
+ * @info
+ * A component to render a single, simple stroke for the 'M'.
+ * (PRESERVED FROM YOUR ORIGINAL CODE)
+ */
+function AnimatedStroke({ path, color, controls, delay }: { path: string; color: string; controls: any; delay: number }) {
+  const strokeVariants: Variants = {
+    hidden: { pathLength: 0, opacity: 0 },
+    visible: {
+      pathLength: 1,
+      opacity: 1,
+      transition: { 
+        duration: 0.6, 
+        ease: 'easeInOut' as const, 
+        delay: delay 
+      }
+    },
+  };
+
+  return (
+    <motion.path
+      d={path}
+      fill="transparent"
+      stroke={color}
+      strokeWidth="12"
+      strokeLinecap="butt"
+      variants={strokeVariants}
+      animate={controls}
+      initial="hidden"
+    />
+  );
+}
+
+/**
+ * @info
+ * A full-screen intro animation featuring a "writing" 'M' logo.
+ * (PRESERVED FROM YOUR ORIGINAL CODE)
+ */
+function IntroAnimation({ onComplete }: { onComplete: () => void }) {
+  const [showText, setShowText] = useState(false);
+  const [showMLSALogo, setShowMLSALogo] = useState(false);
+
+  const MColor = "#060757";
+
+  const path1 = "M 30 80 L 30 20";
+  const path2 = "M 30 20 L 50 80";
+  const path3 = "M 50 80 L 70 20";
+  const path4 = "M 70 20 L 70 80";
+
+  const controls1 = useAnimationControls();
+  const controls2 = useAnimationControls();
+  const controls3 = useAnimationControls();
+  const controls4 = useAnimationControls();
+
+  useEffect(() => {
+    controls1.start("visible");
+    controls2.start("visible");
+    controls3.start("visible");
+    controls4.start("visible");
+
+    const textTimer = setTimeout(() => {
+      setShowText(true);
+    }, 2300);
+
+    const mlsaLogoTimer = setTimeout(() => {
+      setShowMLSALogo(true);
+    }, 500);
+
+    return () => {
+      clearTimeout(textTimer);
+      clearTimeout(mlsaLogoTimer);
+    };
+  }, [controls1, controls2, controls3, controls4]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      exit={{ opacity: 0, scale: 1.5 }}
+      onAnimationComplete={onComplete}
+    >
+      <AnimatePresence>
+        {showMLSALogo && (
+          <motion.img
+            src="/mlsa.jpg"
+            alt="MLSA MIET Logo"
+            className="absolute top-4 left-4 h-12 w-auto md:h-16 z-10"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="w-full max-w-xs md:max-w-md">
+        <motion.svg viewBox="0 0 100 100" className="w-full h-auto overflow-visible">
+          <AnimatedStroke path={path1} color={MColor} controls={controls1} delay={0.5} />
+          <AnimatedStroke path={path2} color={MColor} controls={controls2} delay={0.9} /> 
+          <AnimatedStroke path={path3} color={MColor} controls={controls3} delay={1.3} />
+          <AnimatedStroke path={path4} color={MColor} controls={controls4} delay={1.7} />
+        </motion.svg>
+      </div>
+
+      <AnimatePresence>
+        {showText && (
+          <motion.h1
+            className="mt-4 text-2xl md:text-3xl text-white"
+            style={{ fontFamily: "orbitron", fontWeight: '200', fontSize: '30px' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            MLSA MIET Originals
+          </motion.h1>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/**
+ * @info
+ * NEW COMPONENT: The Gaming Library Main Page
+ * Contains: Header, Hero Section, and Game Grid
+ */
+function GamingZoneHome() {
   return (
     <motion.div 
       className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 1, delay: 0.5 }}
     >
       {/* --- 1. HEADER --- */}
       <header className="flex items-center justify-between px-6 py-4 md:px-10 md:py-6 border-b border-white/10 backdrop-blur-md fixed top-0 w-full z-40 bg-black/60">
         {/* Left: MLSA Logo */}
         <div className="flex items-center gap-4">
-          <Link href="/home">
-            <div className="relative w-10 h-10 md:w-14 md:h-14 cursor-pointer">
-              <Image 
-                src="/mlsa.jpg" 
-                alt="MLSA Logo" 
-                fill
-                className="object-contain"
-              />
-            </div>
-          </Link>
+          <div className="relative w-10 h-10 md:w-14 md:h-14">
+            <Image 
+              src="/mlsa.jpg" 
+              alt="MLSA Logo" 
+              fill
+              className="object-contain"
+            />
+          </div>
           <span className={`${orbitron.className} hidden md:block text-xl font-bold tracking-wider text-blue-500`}>
-            MLSA <span className="text-white">GAMING</span>
+            MLSA <span className="text-white">MIET GAMING</span>
           </span>
         </div>
 
         {/* Right: Login System */}
         <div>
+          {/* IF LOGGED IN: Show User Profile */}
           <SignedIn>
             <div className="flex items-center gap-3 px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-full">
               <UserButton afterSignOutUrl="/"/>
@@ -49,8 +176,9 @@ export default function GamingZoneHome() {
             </div>
           </SignedIn>
 
+          {/* IF LOGGED OUT: Show Login Button */}
           <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="/home">
+            <SignInButton mode="modal">
               <button className={`
                 relative px-6 py-2 group overflow-hidden rounded-lg
                 bg-transparent border border-blue-500/40 hover:border-blue-400 
@@ -69,11 +197,12 @@ export default function GamingZoneHome() {
 
       {/* --- 2. HERO SECTION --- */}
       <section className="pt-32 pb-10 px-6 md:px-16 max-w-7xl mx-auto min-h-[60vh] flex flex-col md:flex-row items-center gap-12">
+        {/* Hero Text */}
         <div className="flex-1 space-y-6 text-center md:text-left">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
             className="inline-block px-3 py-1 rounded-full border border-blue-500/30 bg-blue-900/10 text-blue-400 text-xs tracking-[0.2em] mb-2"
           >
             INITIATE SEQUENCE
@@ -82,10 +211,10 @@ export default function GamingZoneHome() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
+            transition={{ delay: 1.7, duration: 0.8 }}
             className={`${orbitron.className} text-4xl md:text-6xl lg:text-7xl font-black leading-tight`}
           >
-            MLSA MIET PRESENTS <br />
+            MLSA PRESENTS <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 animate-pulse">
               GAMING ZONE
             </span>
@@ -94,19 +223,21 @@ export default function GamingZoneHome() {
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.0, duration: 0.8 }}
+            transition={{ delay: 2.0, duration: 0.8 }}
             className={`${rajdhani.className} text-gray-400 text-lg md:text-xl max-w-lg mx-auto md:mx-0 leading-relaxed`}
           >
             Welcome to the digital frontier. Prove your worth in our collection of algorithmic challenges and cryptographic puzzles.
           </motion.p>
         </div>
 
+        {/* Hero Image */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
+          transition={{ delay: 2.2, duration: 0.8 }}
           className="flex-1 relative w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(37,99,235,0.15)] group"
         >
+           {/* Gradient Overlay */}
            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10"></div>
            <Image 
              src="/bgg.png" 
@@ -256,5 +387,36 @@ export default function GamingZoneHome() {
         </div>
       </section>
     </motion.div>
+  );
+}
+
+/**
+ * @info
+ * MAIN APP COMPONENT
+ * Orchestrates the Intro -> Main Page transition
+ */
+export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Logic: Wait for Intro to finish (visual estimate) then switch state
+  useEffect(() => {
+    // 4.5s matches the duration of your IntroAnimation internal logic
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 4500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="relative w-full min-h-screen bg-black text-white font-sans">
+      <AnimatePresence mode='wait'>
+        {showIntro ? (
+          <IntroAnimation key="intro" onComplete={() => {}} />
+        ) : (
+          <GamingZoneHome key="home" />
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
