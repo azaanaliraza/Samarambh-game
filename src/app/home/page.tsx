@@ -214,7 +214,7 @@ function GamingZoneHome() {
             transition={{ delay: 1.7, duration: 0.8 }}
             className={`${orbitron.className} text-4xl md:text-6xl lg:text-7xl font-black leading-tight`}
           >
-            MLSA PRESENTS <br />
+            MLSA MIET PRESENTS <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 animate-pulse">
               GAMING ZONE
             </span>
